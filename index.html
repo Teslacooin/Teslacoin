@@ -449,14 +449,14 @@ header {
 
 		  document.addEventListener('DOMContentLoaded', function() {
     // افزودن محصول به سبد خرید با کلیک روی دکمه
-    document.querySelectorAll('.add-to-cart').forEach(button => {
+    document.querySelectorAll('Add to cart').forEach(button => {
         button.addEventListener('click', function() {
             const productId = this.getAttribute('data-id');
             const productName = this.getAttribute('data-name');
             const productPrice = this.getAttribute('data-price');
 
             // ارسال درخواست به سرور با Fetch API
-            fetch('add_to_cart.php', {
+            fetch('Add to cart.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
