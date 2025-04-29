@@ -446,72 +446,51 @@ header {
 
  	</style>
 	  <script>
-$(document).ready(function() {
-    $('.add-to-cart').click(function() {
-        let productId = $(this).data('product-id');
-        let productName = $(this).data('product-name');
-        let productPrice = $(this).data('product-price');
-        
-        // ارسال درخواست AJAX به سرور
-        $.ajax({
-            url: 'add_to_cart.php',
-            method: 'POST',
-            data: {
-                id: productId,
-                name: productName,
-                price: productPrice,
-                quantity: 1
-            },
-            success: function(response) {
-                alert('محصول به سبد خرید اضافه شد!');
-                // به روز رسانی تعداد سبد خرید در نوار بالایی
-                $('.cart-count').text(response.cart_count);
-            }
+
+		  document.addEventListener('DOMContentLoaded', function() {
+    // افزودن محصول به سبد خرید با کلیک روی دکمه
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.getAttribute('data-id');
+            const productName = this.getAttribute('data-name');
+            const productPrice = this.getAttribute('data-price');
+
+            // ارسال درخواست به سرور با Fetch API
+            fetch('add_to_cart.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id: productId,
+                    name: productName,
+                    price: productPrice,
+                    quantity: 1
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(${productName} به سبد خرید اضافه شد!);
+                    // آپدیت تعداد سبد خرید
+                    document.getElementById('cart-count').textContent = data.cart_count;
+                } else {
+                    alert('خطا در افزودن به سبد خرید!');
+                }
+            })
+            .catch(error => {
+                console.error('خطا:', error);
+            });
         });
     });
+
+    // بارگذاری تعداد اولیه سبد خرید
+    fetch('get_cart_count.php')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('cart-count').textContent = data.count;
+        });
 });
-<?php
-session_start();
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $productId = $_POST['id'];
-    $productName = $_POST['name'];
-    $productPrice = $_POST['price'];
-    $quantity = $_POST['quantity'];
-    
-    // اگر سبد خرید وجود ندارد، آن را ایجاد کنید
-    if (!isset($_SESSION['cart'])) {
-        $_SESSION['cart'] = [];
-    }
-    
-    // بررسی آیا محصول از قبل در سبد خرید وجود دارد
-    if (isset($_SESSION['cart'][$productId])) {
-        $_SESSION['cart'][$productId]['quantity'] += $quantity;
-    } else {
-        $_SESSION['cart'][$productId] = [
-            'name' => $productName,
-            'price' => $productPrice,
-            'quantity' => $quantity
-        ];
-    }
-    
-    // محاسبه تعداد کل آیتم‌های سبد خرید
-    $cartCount = 0;
-    foreach ($_SESSION['cart'] as $item) {
-        $cartCount += $item['quantity'];
-    }
-    
-    // پاسخ به صورت JSON
-    echo json_encode(['success' => true, 'cart_count' => $cartCount]);
-    exit;
-}
-
-echo json_encode(['success' => false]);
-?>
-
-
-
-		  
 	  </script>
 </body>
 </html>
