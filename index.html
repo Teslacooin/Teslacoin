@@ -447,50 +447,30 @@ header {
  	</style>
 	  <script>
 
-		  document.addEventListener('DOMContentLoaded', function() {
-    // افزودن محصول به سبد خرید با کلیک روی دکمه
-    document.querySelectorAll('Add to cart').forEach(button => {
-        button.addEventListener('click', function() {
-            const productId = this.getAttribute('data-id');
-            const productName = this.getAttribute('data-name');
-            const productPrice = this.getAttribute('data-price');
+		]<script>
+    // آرایه سبد خرید رو از localStorage می‌خونیم یا یه آرایه خالی می‌سازیم
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
-            // ارسال درخواست به سرور با Fetch API
-            fetch('Add to cart.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    id: productId,
-                    name: productName,
-                    price: productPrice,
-                    quantity: 1
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(${productName} به سبد خرید اضافه شد!);
-                    // آپدیت تعداد سبد خرید
-                    document.getElementById('cart-count').textContent = data.cart_count;
-                } else {
-                    alert('خطا در افزودن به سبد خرید!');
-                }
-            })
-            .catch(error => {
-                console.error('خطا:', error);
-            });
-        });
-    });
+    // تابع برای به‌روزرسانی تعداد آیتم‌های سبد
+    function updateCartCount() {
+        document.getElementById('cartCount').innerText = cart.length;
+    }
 
-    // بارگذاری تعداد اولیه سبد خرید
-    fetch('get_cart_count.php')
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('cart-count').textContent = data.count;
-        });
-});
-	  </script>
+    // تابع برای اضافه کردن محصول به سبد خرید
+    function addToCart(productName, price) {
+        // اضافه کردن محصول به آرایه سبد
+        cart.push({ name: productName, price: price });
+        // ذخیره سبد در localStorage
+        localStorage.setItem('cart', JSON.stringify(cart));
+        // به‌روزرسانی تعداد آیتم‌های سبد
+        updateCartCount();
+        // نمایش پیام به کاربر
+        alert(${productName} به سبد خرید اضافه شد!);
+    }
+
+    // وقتی صفحه لود می‌شه، تعداد آیتم‌های سبد رو نشون بده
+    updateCartCount();
+</script>
+	
 </body>
 </html>
